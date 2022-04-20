@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react"
+import { getTags } from "./tags/TagManager"
+
 
 export const EntryForm = ({ entry, moods, onFormSubmit }) => {
     const [editMode, setEditMode] = useState(false)
     const [updatedEntry, setUpdatedEntry] = useState(entry)
+    const [tags, setTags] = useState()
+    const [tagsArray, setTagsArray] = useState([])
+
+    useEffect(() => {
+        getTags()
+            .then((d) => setTags(d))
+    }, [])
 
     useEffect(() => {
         setUpdatedEntry(entry)
@@ -29,10 +38,28 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
     const constructNewEntry = () => {
         const copyEntry = { ...updatedEntry }
         copyEntry.moodId = parseInt(copyEntry.moodId)
+        copyEntry.tags = tagsArray
         if (!copyEntry.date) {
             copyEntry.date = Date(Date.now()).toLocaleString('en-us').split('GMT')[0]
         }
         onFormSubmit(copyEntry)
+    }
+
+// look into how to save value of checkboxs (eg. .each in jquery)...
+
+    const handleCheckboxChange = (event) => {
+       if (tagsArray.indexOf(event.target.value) != -1) {
+           // splice value out
+           const copyTagsArray = [...tagsArray]
+           copyTagsArray.splice(copyTagsArray.indexOf(event.target.value), 1);
+           setTagsArray(copyTagsArray)
+       }
+       else {
+           // push value in
+           const copyTagsArray = [...tagsArray]
+          copyTagsArray.push(event.target.value)
+           setTagsArray(copyTagsArray)
+       }
     }
 
     return (
@@ -78,6 +105,24 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="field">
+                        <div className="control">
+                            <div className="checkbox" value={updatedEntry.tags}>
+                                {tags?.map(t => (
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            name="tags"
+                                            key={t.id}
+                                            value={t.id}
+                                            onChange={handleCheckboxChange}
+                                        />
+                                        {t.name}
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     </div>

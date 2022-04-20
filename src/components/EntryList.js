@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Entry } from "./Entry";
 import { searchEntries } from "./EntryManager";
+import { getTags } from "./tags/TagManager";
 
 export const EntryList = ({ moods, entries, onEditButtonClick, onDeleteButtonClick }) => {
 
   const [filteredEntries, setEntries] = useState([]);
   const [searchedTerm, setTerm] = useState("");
   const [moodSelected, setMoodSelected] = useState("");
+  const [tags, setTags] = useState([])
+
+  useEffect(() => {
+    getTags().then((d) => setTags(d))
+  }, [])
 
   useEffect(() => {
     if (searchedTerm !== "") {
